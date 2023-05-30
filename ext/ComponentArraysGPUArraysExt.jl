@@ -1,3 +1,8 @@
+module ComponentArraysGPUArraysExt
+
+using ComponentArrays, LinearAlgebra
+isdefined(Base, :get_extension) ? (using GPUArrays) : (using ..GPUArrays)
+
 const AbstractGPUArrayOrAdj = Union{<:GPUArrays.AbstractGPUArray{T, N}, Adjoint{T, <:GPUArrays.AbstractGPUArray{T, N}}, Transpose{T, <:GPUArrays.AbstractGPUArray{T, N}}} where {T, N}
 const GPUComponentArray = ComponentArray{T,N,<:AbstractGPUArrayOrAdj{T, N},Ax} where {T,N,Ax}
 const GPUComponentVector{T,Ax} = ComponentArray{T,1,<:AbstractGPUArrayOrAdj{T, 1},Ax}
@@ -101,4 +106,6 @@ function LinearAlgebra.mul!(C::GPUComponentVecorMat,
     A::AbstractGPUArrayOrAdj,
     B::AbstractGPUArrayOrAdj, a::Number, b::Number)
     return GPUArrays.generic_matmatmul!(C, A, B, a, b)
+end
+
 end

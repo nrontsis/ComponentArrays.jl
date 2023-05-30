@@ -32,17 +32,9 @@ truth = ComponentArray(a = [32, 48], x = 156)
         @test zygote_full ≈ truth
     end
 
-    # Not sure why this doesn't work in v1.2, but I don't want to drop the tests for that just
-    # for this to work
-    if VERSION ≥ v"1.6"
-        @test ComponentArray(x=4,) == Zygote.gradient(ComponentArray(x=2,)) do c
-            (;c...,).x^2
-        end[1]
-    else
-        @test_skip ComponentArray(x=4,) == Zygote.gradient(ComponentArray(x=2,)) do c
-            (;c...,).x^2
-        end[1]
-    end
+    @test ComponentArray(x=4.0,) ≈ Zygote.gradient(ComponentArray(x=2,)) do c
+        (;c...,).x^2
+    end[1]
 
     # Issue #148
     ps = ComponentArray(;bias = rand(4))
@@ -50,9 +42,15 @@ truth = ComponentArray(a = [32, 48], x = 156)
     @test out isa Vector{<:ForwardDiff.Dual}
 end
 
+@testset "Projection" begin
+    gs_ca = Zygote.gradient(sum, ca)[1]
+
+    @test gs_ca isa ComponentArray
+end
+
 
 # # This is commented out because the gradient operation itself is broken due to Zygote's inability
-# # to support mutation and ComponentArray's use of mutation for contstuction from a NamedTuple.
+# # to support mutation and ComponentArray's use of mutation for construction from a NamedTuple.
 # # It would be nice to support this eventually, so I'll just leave this commented (because @test_broken
 # # wouldn't work here because the error happens before the test)
 # @testset "Issues" begin
